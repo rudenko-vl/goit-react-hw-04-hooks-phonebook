@@ -1,37 +1,38 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Form, Label, BtnSubmit, Input } from "./ContactForm.styled";
 
-class ContactForm extends Component {
-  state = {
-    name: "",
-    number: "",
+const ContactForm = ({onSubmit}) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const onChangeNameInput = (ev) => {
+    setName(ev.target.value);
   };
 
-  onChangeInput = (ev) => {
-    const { name, value } = ev.target;
-    this.setState({ [name]: value });
+  const onChangeNumberInput = (ev) => {
+    setNumber(ev.target.value);
   };
 
-  handleSubmit = (ev) => {
+  const handleSubmit = (ev) => {
     ev.preventDefault();
-    this.props.onSubmit(this.state);
-    this.reset();
+    onSubmit(name, number);
+    reset();
   };
-  reset = () => {
-    this.setState({ name: "", number: "" });
+  const reset = () => {
+    setName('')
+    setNumber('')
   };
-  render() {
-    const { name, number } = this.state;
+
     return (
-      <Form onSubmit={this.handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <Label>
           Name
           <Input
             type="text"
             name="name"
             value={name}
-            onChange={this.onChangeInput}
+            onChange={onChangeNameInput}
             pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
             title="Name may contain only letters, apostrophe, dash and spaces. For example               Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
             required
@@ -43,7 +44,7 @@ class ContactForm extends Component {
             type="tel"
             name="number"
             value={number}
-            onChange={this.onChangeInput}
+            onChange={onChangeNumberInput}
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and             can start with +"
             required
@@ -53,7 +54,6 @@ class ContactForm extends Component {
       </Form>
     );
   }
-}
 
 export default ContactForm;
 

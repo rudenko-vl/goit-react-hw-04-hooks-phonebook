@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import ContactForm from "./ContactForm/ContactForm";
 import { Container } from "./App.styled";
 import ContactsList from "./ContactList/ContactList";
@@ -6,77 +6,55 @@ import Filter from "./Filter/Filter";
 import Title from "./Title/Title";
 import { GlobalStyle } from "./GlobalStyle";
 import { nanoid } from "nanoid";
+import toast, { Toaster } from 'react-hot-toast';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: "",
-  };
+const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
-    if (parsedContacts) {
-      this.setState({
-        contacts: parsedContacts,
-      });
+  useEffect(() => {
+    const parseLocalContacts = JSON.parse(localStorage.getItem('contacts'));
+    if (parseLocalContacts) {
+      setContacts(parseLocalContacts)
     }
-  };
+  }, []);
 
-  componentDidUpdate() {
-    const { contacts } = this.state;
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  };
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts))
+  }, [contacts]);
 
-  handleFormSubmit = ({ name, number }) => {
-    const { contacts } = this.state;
-    const checkForContact = contacts.find(
-      (contact) => contact.name.toLowerCase() === name.toLowerCase()
+  const  handleFormSubmit = ( name, number ) => {
+    const checkForContact = contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
     );
 
     if (checkForContact) {
-      alert(`${name} is already in contacts.`);
+      toast.error(`${name} is already in contacts.`)
       return;
     }
-    this.setState({
-      contacts: [{ name, id: nanoid(), number }, ...contacts],
-    });
+    setContacts([...contacts, { name, id: nanoid(), number }]);
   };
 
-  deleteContact = (id) => {
-    this.setState((prevState) => ({
-      contacts: prevState.contacts.filter((contact) => contact.id !== id),
-    }));
+  const deleteContact = (id) => {
+    const actualСontacts = contacts.filter((contact) => contact.id !== id);
+    setContacts(actualСontacts);
+    toast.success('Contact deleted');
   };
 
-  filterByName = () => {
-    const { contacts, filter } = this.state;
-    return contacts.filter((contact) =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
-  };
-
-  searchContactByName = (ev) => {
-    this.setState({ filter: ev.target.value });
-  };
-
-  render() {
-    const { filter } = this.state;
-    const filteredContacts = this.filterByName();
     return (
       <Container>
         <GlobalStyle />
+        <Toaster/>
         <Title title="Phonebook" />
-        <ContactForm onSubmit={this.handleFormSubmit} />
+        <ContactForm onSubmit={handleFormSubmit} />
         <Title title="Contacts" />
-        <Filter onChangeFilter={this.searchContactByName} filter={filter} />
+        <Filter onChangeFilter={ev => setFilter(ev.target.value)} filter={filter} />
         <ContactsList
-          onDeleteContact={this.deleteContact}
-          contacts={filteredContacts}
+          onDeleteContact={deleteContact}
+          contacts={contacts}
         />
       </Container>
     );
-  }
 }
 
 export default App;
