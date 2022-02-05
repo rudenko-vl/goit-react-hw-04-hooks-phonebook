@@ -41,6 +41,12 @@ const App = () => {
     toast.success('Contact deleted');
   };
 
+  const filterByName = () => {
+    return contacts.filter((contact) =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
+  };
+
     return (
       <Container>
         <GlobalStyle />
@@ -51,7 +57,7 @@ const App = () => {
         <Filter onChangeFilter={ev => setFilter(ev.target.value)} filter={filter} />
         <ContactsList
           onDeleteContact={deleteContact}
-          contacts={contacts}
+          contacts={filterByName()}
         />
       </Container>
     );
